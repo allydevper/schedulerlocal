@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Scheduler - Local</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .panel h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .live-timer {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .panel h3 {
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="password"],
+        input[type="checkbox"],
+        select,
+        textarea {
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="password"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="password"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 70px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .times-input {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .time-tag {
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .time-tag button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            width: 100%;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-add-time {
+            width: auto;
+            padding: 10px 15px;
+            background: #667eea;
+            color: white;
+            margin-top: 0;
+        }
+
+        .btn-add-time:hover {
+            background: #5568d3;
+        }
+
+        .btn-start {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: #45a049;
+        }
+
+        .btn-start:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .btn-stop {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-stop:hover {
+            background: #da190b;
+        }
+
+        .btn-stop:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .url-list {
+            margin-top: 15px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .url-item {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: start;
+        }
+
+        .url-item-info {
+            flex: 1;
+        }
+
+        .url-item-actions {
+            display: flex;
+            gap: 6px;
+            flex-direction: column;
+            white-space: nowrap;
+        }
+
+        .btn-execute {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .btn-execute:hover {
+            background: #45a049;
+        }
+
+        .btn-execute:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .btn-auto {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-auto.active {
+            background: #ff9800;
+        }
+
+        .url-item-url {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+            word-break: break-all;
+            font-size: 13px;
+        }
+
+        .url-item-times {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .url-item-auth {
+            font-size: 11px;
+            color: #667eea;
+        }
+
+        .url-item-delete {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .url-item-delete:hover {
+            background: #ff5252;
+        }
+
+        .header-field {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 8px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .header-field input {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .header-field input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-remove-header {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-remove-header:hover {
+            background: #ff5252;
+        }
+
+        .auth-fields {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #ff9800;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .controls button {
+            flex: 1;
+        }
+
+        .log-box {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            flex: 1;
+            border: 2px solid #333;
+            line-height: 1.6;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .log-time {
+            color: #ffff00;
+            min-width: 80px;
+            font-weight: bold;
+        }
+
+        .log-url {
+            color: #00ccff;
+            flex: 1;
+            word-break: break-all;
+        }
+
+        .log-status {
+            font-weight: bold;
+            min-width: 70px;
+        }
+
+        .log-status.success {
+            color: #00ff00;
+        }
+
+        .log-status.error {
+            color: #ff6b6b;
+        }
+
+        .log-status.pending {
+            color: #ffff00;
+        }
+
+        .clear-logs {
+            margin-top: 10px;
+            background: #f44336;
+            color: white;
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        .clear-logs:hover {
+            background: #da190b;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat {
+            background: #f0f0f0;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            color: #667eea;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .status-running {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #4caf50;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Panel de Configuración -->
+        <div class="panel">
+            <h2>⚙️ Configuración</h2>
+
+            <div class="form-group">
+                <label for="urlInput">URL:</label>
+                <input type="text" id="urlInput" placeholder="https://ejemplo.com/api" />
+            </div>
+
+            <div class="form-group">
+                <label for="methodSelect">Método:</label>
+                <select id="methodSelect">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                    <option value="PATCH">PATCH</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="useCorsMode" checked />
+                    Modo CORS (desactiva si no funciona)
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="useAuth" onchange="toggleAuth()" />
+                    Usar Autorización Básica
+                </label>
+            </div>
+
+            <div id="authFields" style="display: none;" class="auth-fields">
+                <div class="form-group">
+                    <label for="authUser">Usuario:</label>
+                    <input type="text" id="authUser" placeholder="usuario" />
+                </div>
+                <div class="form-group">
+                    <label for="authPass">Contraseña:</label>
+                    <input type="password" id="authPass" placeholder="contraseña" />
+                </div>
+            </div>
+
+            <h3>Headers adicionales:</h3>
+            <div id="headersList"></div>
+            <button class="btn-secondary" style="margin-bottom: 15px;" onclick="addHeaderField()">+ Agregar Header</button>
+
+            <div class="form-group">
+                <label>Tiempos de ejecución (segundos):</label>
+                <div class="time-input-row">
+                    <input type="number" id="timeInput" placeholder="Ej: 10" min="1" />
+                    <button class="btn-add-time" onclick="addTime()">+ Agregar</button>
+                </div>
+                <div class="times-input" id="timesList"></div>
+            </div>
+
+            <button class="btn-primary" onclick="addUrl()">➕ Agregar URL</button>
+
+            <h3>URLs configuradas:</h3>
+            <div class="url-list" id="urlList"></div>
+
+            <div class="controls">
+                <button class="btn-start" id="startBtn" onclick="startScheduler()">▶️ Iniciar TODO</button>
+                <button class="btn-stop" id="stopBtn" onclick="abortAll()" disabled>⛔ Abortar TODO</button>
+            </div>
+        </div>
+
+        <!-- Panel de Logs -->
+        <div class="panel">
+            <h2>
+                📊 Logs
+                <span class="live-timer" id="liveTimer">00:00:00</span>
+            </h2>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-label">Total ejecutadas</div>
+                    <div class="stat-value" id="totalCount">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Exitosas</div>
+                    <div class="stat-value" style="color: #4caf50;" id="successCount">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Errores</div>
+                    <div class="stat-value" style="color: #f44336;" id="errorCount">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Estado</div>
+                    <div class="stat-value" id="statusText">Parado</div>
+                </div>
+            </div>
+
+            <div class="log-box" id="logBox">
+                <div style="color: #888;">Logs aparecerán aquí...</div>
+            </div>
+
+            <button class="btn-secondary clear-logs" onclick="clearLogs()">🗑️ Limpiar Logs</button>
+            <button class="btn-secondary clear-logs" style="background: #2196F3; color: white;" onclick="downloadLogs()">⬇️ Descargar Logs</button>
+        </div>
+    </div>
+
+    <script>
+        let currentTimes = [];
+        let urls = [];
+        let logs = [];
+        let isRunning = false;
+        let executionQueue = [];
+        let currentExecutionIndex = 0;
+        let headers = [];
+        let autoExecutors = {};
+
+        // Toggle campos de autenticación
+        function toggleAuth() {
+            const authFields = document.getElementById('authFields');
+            authFields.style.display = document.getElementById('useAuth').checked ? 'block' : 'none';
+        }
+
+        // Agregar tiempo
+        function addTime() {
+            const input = document.getElementById('timeInput');
+            const time = parseInt(input.value);
+
+            if (isNaN(time) || time < 1) {
+                alert('Ingresa un número válido (mayor a 0)');
+                return;
+            }
+
+            if (currentTimes.includes(time)) {
+                alert('Este tiempo ya está agregado');
+                return;
+            }
+
+            currentTimes.push(time);
+            currentTimes.sort((a, b) => a - b);
+            input.value = '';
+            renderTimes();
+        }
+
+        // Renderizar tiempos
+        function renderTimes() {
+            const container = document.getElementById('timesList');
+            container.innerHTML = currentTimes.map(time => 
+                `<div class="time-tag">
+                    ${time}s
+                    <button onclick="removeTime(${time})">✕</button>
+                </div>`
+            ).join('');
+        }
+
+        // Remover tiempo
+        function removeTime(time) {
+            currentTimes = currentTimes.filter(t => t !== time);
+            renderTimes();
+        }
+
+        // Agregar campo de header
+        function addHeaderField() {
+            const id = Date.now();
+            headers.push({ id: id, key: '', value: '' });
+            renderHeaders();
+        }
+
+        // Renderizar headers
+        function renderHeaders() {
+            const container = document.getElementById('headersList');
+            container.innerHTML = headers.map(h => 
+                `<div class="header-field">
+                    <input type="text" placeholder="Nombre (ej: X-Custom)" value="${h.key}" onchange="updateHeader(${h.id}, 'key', this.value)" />
+                    <input type="text" placeholder="Valor" value="${h.value}" onchange="updateHeader(${h.id}, 'value', this.value)" />
+                    <button class="btn-remove-header" onclick="removeHeader(${h.id})">✕</button>
+                </div>`
+            ).join('');
+        }
+
+        // Actualizar header
+        function updateHeader(id, field, value) {
+            const header = headers.find(h => h.id === id);
+            if (header) {
+                header[field] = value;
+                saveToLocalStorage();
+            }
+        }
+
+        // Remover header
+        function removeHeader(id) {
+            headers = headers.filter(h => h.id !== id);
+            renderHeaders();
+            saveToLocalStorage();
+        }
+
+        // Agregar URL
+        function addUrl() {
+            const url = document.getElementById('urlInput').value.trim();
+            const method = document.getElementById('methodSelect').value;
+            const useAuth = document.getElementById('useAuth').checked;
+            const authUser = document.getElementById('authUser').value;
+            const authPass = document.getElementById('authPass').value;
+            
+            // Convertir headers a objeto
+            let customHeaders = {};
+            headers.forEach(h => {
+                if (h.key && h.value) {
+                    customHeaders[h.key] = h.value;
+                }
+            });
+
+            if (!url) {
+                alert('Ingresa una URL');
+                return;
+            }
+
+            if (currentTimes.length === 0) {
+                alert('Agrega al menos un tiempo de ejecución');
+                return;
+            }
+
+            urls.push({
+                id: Date.now(),
+                url: url,
+                method: method,
+                times: [...currentTimes],
+                useAuth: useAuth,
+                authUser: authUser,
+                authPass: authPass,
+                customHeaders: customHeaders
+            });
+
+            document.getElementById('urlInput').value = '';
+            currentTimes = [];
+            renderTimes();
+            renderUrls();
+            saveToLocalStorage();
+        }
+
+        // Renderizar URLs
+        function renderUrls() {
+            const container = document.getElementById('urlList');
+            container.innerHTML = urls.map(item => {
+                let authLabel = '';
+                if (item.useAuth) {
+                    authLabel = `<div class="url-item-auth">🔐 Auth: ${item.authUser}</div>`;
+                }
+                
+                const isAutoActive = autoExecutors[item.id] ? true : false;
+                
+                return `<div class="url-item">
+                    <div class="url-item-info">
+                        <div class="url-item-url">[${item.method}] ${item.url}</div>
+                        <div class="url-item-times">⏱️ Tiempos: ${item.times.join('s, ')}s</div>
+                        ${authLabel}
+                    </div>
+                    <div class="url-item-actions">
+                        <button class="btn-execute" id="exe-${item.id}" onclick="executeUrl(${item.id})">▶️ Ejecutar</button>
+                        <button class="btn-execute btn-auto ${isAutoActive ? 'active' : ''}" id="auto-${item.id}" onclick="toggleAutoExecute(${item.id})">${isAutoActive ? '⏸️ Detener Auto' : '🔄 Auto'}</button>
+                        <button class="url-item-delete" onclick="removeUrl(${item.id})">🗑️ Eliminar</button>
+                    </div>
+                </div>`
+            }).join('');
+        }
+
+        // Remover URL
+        function removeUrl(id) {
+            urls = urls.filter(u => u.id !== id);
+            if (autoExecutors[id]) {
+                delete autoExecutors[id];
+            }
+            renderUrls();
+            saveToLocalStorage();
+        }
+
+        // Ejecutar una URL específica
+        async function executeUrl(id) {
+            const urlItem = urls.find(u => u.id === id);
+            if (!urlItem) return;
+
+            const btn = document.getElementById(`exe-${id}`);
+            btn.disabled = true;
+            btn.textContent = '⏳ Ejecutando...';
+
+            try {
+                for (let targetSecond of urlItem.times) {
+                    await waitUntilSecond(targetSecond);
+
+                    addLog(targetSecond, urlItem.url, urlItem.method, 'pending');
+
+                    const result = await executeRequest(
+                        urlItem.url,
+                        urlItem.method,
+                        urlItem.useAuth,
+                        urlItem.authUser,
+                        urlItem.authPass,
+                        urlItem.customHeaders
+                    );
+
+                    if (logs.length > 0) {
+                        const lastLog = logs[logs.length - 1];
+                        lastLog.status = result.status;
+                        lastLog.message = `HTTP ${result.code}`;
+                        renderLogs();
+                        updateStats();
+                    }
+                }
+            } catch (error) {
+                console.error('Error ejecutando:', error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '▶️ Ejecutar';
+            }
+        }
+
+        // Esperar hasta un segundo exacto del minuto
+        async function waitUntilSecond(targetSecond) {
+            return new Promise(resolve => {
+                const checkTime = () => {
+                    const now = new Date();
+                    const currentSecond = now.getSeconds();
+                    
+                    if (currentSecond === targetSecond) {
+                        resolve();
+                    } else {
+                        setTimeout(checkTime, 100);
+                    }
+                };
+                checkTime();
+            });
+        }
+
+        // Toggle automático
+        function toggleAutoExecute(id) {
+            const urlItem = urls.find(u => u.id === id);
+            if (!urlItem) return;
+
+            if (autoExecutors[id]) {
+                delete autoExecutors[id];
+                renderUrls();
+            } else {
+                autoExecuteRepeat(id);
+                renderUrls();
+            }
+        }
+
+        // Ejecutar repetitivamente cada minuto (mejorado para background)
+        async function autoExecuteRepeat(id) {
+            const urlItem = urls.find(u => u.id === id);
+            if (!urlItem) return;
+
+            autoExecutors[id] = true;
+            let lastExecutedSecond = -1;
+
+            while (autoExecutors[id]) {
+                const now = new Date();
+                const currentSecond = now.getSeconds();
+
+                for (let targetSecond of urlItem.times) {
+                    if (!autoExecutors[id]) break;
+
+                    // Ejecutar si llegó al segundo objetivo Y no fue ejecutado ya en este segundo
+                    if (currentSecond === targetSecond && lastExecutedSecond !== targetSecond) {
+                        lastExecutedSecond = targetSecond;
+
+                        addLog(targetSecond, urlItem.url, urlItem.method, 'pending');
+
+                        const result = await executeRequest(
+                            urlItem.url,
+                            urlItem.method,
+                            urlItem.useAuth,
+                            urlItem.authUser,
+                            urlItem.authPass,
+                            urlItem.customHeaders
+                        );
+
+                        if (logs.length > 0) {
+                            const lastLog = logs[logs.length - 1];
+                            lastLog.status = result.status;
+                            lastLog.message = `HTTP ${result.code}`;
+                            renderLogs();
+                            updateStats();
+                        }
+                    }
+
+                    // Resetear cuando pasa el segundo objetivo
+                    if (currentSecond !== targetSecond && lastExecutedSecond === targetSecond) {
+                        lastExecutedSecond = -1;
+                    }
+                }
+
+                // Chequear cada 500ms (más eficiente que 100ms)
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+
+        // Agregar log
+        function addLog(time, url, method, status, message = '') {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString();
+
+            logs.push({
+                timestamp: timeStr,
+                time: time,
+                url: url,
+                method: method,
+                status: status,
+                message: message
+            });
+
+            renderLogs();
+            updateStats();
+        }
+
+        // Renderizar logs
+        function renderLogs() {
+            const logBox = document.getElementById('logBox');
+            logBox.innerHTML = logs.map(log => {
+                let statusClass = 'pending';
+                let statusText = '⏳';
+
+                if (log.status === 'success') {
+                    statusClass = 'success';
+                    statusText = '✅';
+                } else if (log.status === 'error') {
+                    statusClass = 'error';
+                    statusText = '❌';
+                }
+
+                return `<div class="log-entry">
+                    <span class="log-time">${log.timestamp}</span>
+                    <span class="log-status ${statusClass}">${statusText}</span>
+                    <span class="log-url">${log.method} ${log.url}</span>
+                </div>`;
+            }).join('');
+
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        // Actualizar estadísticas
+        function updateStats() {
+            const total = logs.length;
+            const success = logs.filter(l => l.status === 'success').length;
+            const error = logs.filter(l => l.status === 'error').length;
+
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('successCount').textContent = success;
+            document.getElementById('errorCount').textContent = error;
+        }
+
+        // Ejecutar request
+        async function executeRequest(url, method, useAuth, authUser, authPass, customHeaders) {
+            try {
+                const headers = {
+                    'Content-Type': 'application/json',
+                    ...customHeaders
+                };
+
+                if (useAuth && authUser && authPass) {
+                    const credentials = btoa(`${authUser}:${authPass}`);
+                    headers['Authorization'] = `Basic ${credentials}`;
+                }
+
+                const options = {
+                    method: method,
+                    headers: headers
+                };
+
+                const useCorsMode = document.getElementById('useCorsMode').checked;
+                if (!useCorsMode) {
+                    options.mode = 'no-cors';
+                }
+
+                const response = await fetch(url, options);
+
+                let statusText = 'success';
+                let statusCode = response.status;
+
+                if (!useCorsMode) {
+                    statusText = 'success';
+                    statusCode = 0;
+                } else {
+                    statusText = response.ok ? 'success' : 'error';
+                }
+
+                return { status: statusText, code: statusCode || 'Request enviada' };
+            } catch (error) {
+                return { status: 'error', code: error.message };
+            }
+        }
+
+        // Construir cola de ejecuciones
+        function buildExecutionQueue() {
+            executionQueue = [];
+
+            urls.forEach(urlItem => {
+                urlItem.times.forEach(time => {
+                    executionQueue.push({
+                        delayMs: time * 1000,
+                        url: urlItem.url,
+                        method: urlItem.method,
+                        useAuth: urlItem.useAuth,
+                        authUser: urlItem.authUser,
+                        authPass: urlItem.authPass,
+                        customHeaders: urlItem.customHeaders,
+                        time: time
+                    });
+                });
+            });
+
+            executionQueue.sort((a, b) => a.delayMs - b.delayMs);
+        }
+
+        // Ejecutar cola secuencialmente
+        async function executeQueue() {
+            buildExecutionQueue();
+
+            for (let i = 0; i < executionQueue.length && isRunning; i++) {
+                const item = executionQueue[i];
+                
+                try {
+                    await new Promise(resolve => {
+                        const startTime = Date.now();
+                        let elapsed = 0;
+
+                        if (i > 0) {
+                            elapsed = executionQueue[i - 1].delayMs;
+                        }
+
+                        const remainingDelay = item.delayMs - elapsed;
+                        if (remainingDelay > 0) {
+                            setTimeout(resolve, remainingDelay);
+                        } else {
+                            resolve();
+                        }
+                    });
+
+                    if (!isRunning) break;
+
+                    addLog(item.time, item.url, item.method, 'pending');
+
+                    const result = await executeRequest(
+                        item.url,
+                        item.method,
+                        item.useAuth,
+                        item.authUser,
+                        item.authPass,
+                        item.customHeaders
+                    );
+
+                    if (logs.length > 0) {
+                        const lastLog = logs[logs.length - 1];
+                        lastLog.status = result.status;
+                        lastLog.message = `HTTP ${result.code}`;
+                        renderLogs();
+                        updateStats();
+                    }
+                } catch (error) {
+                    console.error('Error en ejecución:', error);
+                    if (logs.length > 0) {
+                        const lastLog = logs[logs.length - 1];
+                        lastLog.status = 'error';
+                        lastLog.message = error.message;
+                        renderLogs();
+                        updateStats();
+                    }
+                }
+            }
+
+            if (isRunning) {
+                isRunning = false;
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = true;
+                document.getElementById('statusText').textContent = 'Completado ✓';
+            }
+        }
+
+        // Iniciar scheduler (ejecuta TODAS las URLs)
+        function startScheduler() {
+            if (urls.length === 0) {
+                alert('Agrega al menos una URL');
+                return;
+            }
+
+            isRunning = true;
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            document.getElementById('statusText').innerHTML = '<span class="status-running"></span>Ejecutando';
+
+            logs = [];
+            renderLogs();
+            updateStats();
+
+            executeQueue();
+        }
+
+        // Abortar todo (emergencia)
+        function abortAll() {
+            if (!confirm('¿Abortar TODO? Se detendrán todas las ejecuciones en curso.')) {
+                return;
+            }
+            
+            isRunning = false;
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            document.getElementById('statusText').textContent = '⛔ Abortado';
+        }
+
+        // Limpiar logs
+        function clearLogs() {
+            if (confirm('¿Estás seguro de que quieres limpiar todos los logs?')) {
+                logs = [];
+                renderLogs();
+                updateStats();
+            }
+        }
+
+        // Descargar logs
+        function downloadLogs() {
+            const dataStr = JSON.stringify(logs, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `logs-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Event listeners
+        document.getElementById('timeInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addTime();
+        });
+
+        document.getElementById('urlInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addUrl();
+        });
+
+        // Guardar en localStorage
+        function saveToLocalStorage() {
+            const state = {
+                urls: urls,
+                headers: headers
+            };
+            localStorage.setItem('urlSchedulerConfig', JSON.stringify(state));
+        }
+
+        // Cargar desde localStorage
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('urlSchedulerConfig');
+            if (saved) {
+                try {
+                    const state = JSON.parse(saved);
+                    urls = state.urls || [];
+                    headers = state.headers || [];
+                    renderUrls();
+                    renderHeaders();
+                } catch (e) {
+                    console.error('Error cargando config:', e);
+                }
+            }
+        }
+
+        // Cargar al iniciar
+        window.addEventListener('DOMContentLoaded', () => {
+            loadFromLocalStorage();
+            startLiveTimer();
+        });
+
+        // Reloj en vivo
+        function startLiveTimer() {
+            setInterval(() => {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                document.getElementById('liveTimer').textContent = `${hours}:${minutes}:${seconds}`;
+            }, 100);
+        }
+    </script>
+</body>
+</html>

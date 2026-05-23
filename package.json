@@ -1,0 +1,34 @@
+{
+  "name": "url-scheduler",
+  "version": "1.0.0",
+  "description": "URL Scheduler - Ejecuta peticiones HTTP en tiempos configurados",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.urlscheduler.app",
+    "productName": "URL Scheduler",
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "styles.css",
+      "app.js"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^29.0.0",
+    "electron-builder": "^24.0.0"
+  }
+}

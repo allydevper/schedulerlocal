@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Scheduler</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="app-header">
+        <div class="app-header-title">
+            <span id="headerDot" class="dot"></span>
+            URL Scheduler
+        </div>
+        <span class="live-clock" id="liveTimer">00:00:00</span>
+    </header>
+
+    <div class="container">
+
+        <!-- ── Left panel: Config ── -->
+        <div class="card panel-scroll">
+            <div class="card-header">
+                <div class="card-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+                    Configuración
+                </div>
+                <p class="card-description">Define URLs y tiempos de ejecución</p>
+            </div>
+
+            <div class="card-content">
+
+                <!-- URL + Method -->
+                <div class="form-group">
+                    <label for="urlInput">URL</label>
+                    <input type="text" id="urlInput" placeholder="https://api.ejemplo.com/endpoint" />
+                </div>
+
+                <div class="form-group">
+                    <label for="methodSelect">Método HTTP</label>
+                    <select id="methodSelect">
+                        <option value="GET">GET</option>
+                        <option value="POST">POST</option>
+                        <option value="PUT">PUT</option>
+                        <option value="DELETE">DELETE</option>
+                        <option value="PATCH">PATCH</option>
+                    </select>
+                </div>
+
+                <!-- Options -->
+                <div class="form-group">
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="useCorsMode" checked />
+                        <span>Modo CORS <span class="label-muted">(desactiva si falla)</span></span>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="useAuth" onchange="toggleAuth()" />
+                        <span>Autorización básica (Basic Auth)</span>
+                    </label>
+                </div>
+
+                <div id="authFields" style="display:none;" class="auth-section form-group">
+                    <div class="form-group">
+                        <label for="authUser">Usuario</label>
+                        <input type="text" id="authUser" placeholder="usuario" />
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <label for="authPass">Contraseña</label>
+                        <input type="password" id="authPass" placeholder="contraseña" />
+                    </div>
+                </div>
+
+                <!-- Headers -->
+                <div class="section-label">Headers adicionales</div>
+                <div id="headersList"></div>
+                <button class="btn-outline btn-sm" onclick="addHeaderField()" style="margin-bottom:16px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                    Agregar header
+                </button>
+
+                <!-- Execution times -->
+                <div class="section-label">Tiempos de ejecución</div>
+                <div class="form-group">
+                    <div class="input-row">
+                        <input type="number" id="timeInput" placeholder="Segundos (ej: 10)" min="1" />
+                        <button class="btn btn-sm" onclick="addTime()">Agregar</button>
+                    </div>
+                    <div class="times-container" id="timesList"></div>
+                </div>
+
+                <button class="btn btn-full" onclick="addUrl()" style="margin-top:4px;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                    Agregar URL
+                </button>
+
+                <!-- URL list -->
+                <div class="divider" style="margin: 20px 0 16px;"></div>
+                <div class="section-label" style="margin-top:0;">URLs configuradas</div>
+                <div class="url-list" id="urlList">
+                    <div class="empty-state">Ninguna URL configurada aún</div>
+                </div>
+
+            </div>
+
+            <!-- Controls footer -->
+            <div class="controls">
+                <button class="btn-success btn btn-full" id="startBtn" onclick="startScheduler()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Iniciar todo
+                </button>
+                <button class="btn-destructive btn btn-full" id="stopBtn" onclick="abortAll()" disabled>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                    Abortar todo
+                </button>
+            </div>
+        </div>
+
+        <!-- ── Right panel: Logs ── -->
+        <div class="card">
+            <div class="card-header" style="padding-bottom: 16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div class="card-title">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        Logs de ejecución
+                    </div>
+                    <div class="status-pill" id="statusPill">
+                        <span class="indicator"></span>
+                        <span id="statusText">Detenido</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-content" style="padding-top: 0;">
+
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalCount">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value success" id="successCount">0</div>
+                        <div class="stat-label">Exitosas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value error" id="errorCount">0</div>
+                        <div class="stat-label">Errores</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="pendingCount" style="color: hsl(32.1 94.6% 43.7%)">0</div>
+                        <div class="stat-label">Pendientes</div>
+                    </div>
+                </div>
+
+                <!-- Log box -->
+                <div class="log-box" id="logBox">
+                    <div class="log-empty">Los logs aparecerán aquí cuando se ejecuten las URLs...</div>
+                </div>
+
+                <!-- Footer buttons -->
+                <div class="log-footer">
+                    <button class="btn-outline btn btn-sm" onclick="clearLogs()">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                        Limpiar
+                    </button>
+                    <button class="btn-outline btn btn-sm" onclick="downloadLogs()">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Descargar JSON
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
