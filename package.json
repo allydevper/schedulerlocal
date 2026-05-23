@@ -11,13 +11,8 @@
     "appId": "com.urlscheduler.app",
     "productName": "URL Scheduler",
     "win": {
-      "target": "nsis",
+      "target": "portable",
       "icon": "icon.ico"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true
     },
     "files": [
       "main.js",

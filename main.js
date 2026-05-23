@@ -15,6 +15,7 @@ function createWindow() {
         minWidth: 900,
         minHeight: 650,
         title: 'URL Scheduler',
+        icon: path.join(__dirname, 'icon.ico'),
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
