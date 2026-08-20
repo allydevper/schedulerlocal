@@ -1,6 +1,15 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
+// Al empaquetar como "portable" (electron-builder), Windows inyecta
+// PORTABLE_EXECUTABLE_DIR = carpeta donde está el .exe que se ejecutó.
+// Guardamos ahí los datos (localStorage, config) en vez de en %APPDATA%,
+// así cada copia del .exe (en carpetas distintas) tiene su propia memoria,
+// independiente de las demás copias.
+if (process.env.PORTABLE_EXECUTABLE_DIR) {
+    app.setPath('userData', path.join(process.env.PORTABLE_EXECUTABLE_DIR, 'URL Scheduler Data'));
+}
+
 const lock = app.requestSingleInstanceLock();
 if (!lock) {
     app.quit();

@@ -19,104 +19,148 @@
 
     <div class="container">
 
-        <!-- ── Left panel: Config ── -->
-        <div class="card panel-scroll">
-            <div class="card-header">
-                <div class="card-title">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
-                    Configuración
-                </div>
-                <p class="card-description">Define URLs y tiempos de ejecución</p>
-            </div>
+        <!-- ── Left panel: Config + URL list, stacked separately ── -->
+        <div class="left-column panel-scroll">
 
-            <div class="card-content">
-
-                <!-- URL + Method -->
-                <div class="form-group">
-                    <label for="urlInput">URL</label>
-                    <input type="text" id="urlInput" placeholder="https://api.ejemplo.com/endpoint" />
+            <!-- ── Configuración (colapsable) ── -->
+            <div class="card" id="configCard">
+                <div class="card-header collapsible-header" onclick="toggleConfigCollapse()">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div class="card-title">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+                            Configuración
+                        </div>
+                        <svg id="configChevron" class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+                    <p class="card-description">Define URLs y tiempos de ejecución</p>
                 </div>
 
-                <div class="form-group">
-                    <label for="methodSelect">Método HTTP</label>
-                    <select id="methodSelect">
-                        <option value="GET">GET</option>
-                        <option value="POST">POST</option>
-                        <option value="PUT">PUT</option>
-                        <option value="DELETE">DELETE</option>
-                        <option value="PATCH">PATCH</option>
-                    </select>
-                </div>
+                <div class="card-content" id="configContent">
 
-                <!-- Options -->
-                <div class="form-group">
-                    <label class="checkbox-group">
-                        <input type="checkbox" id="useCorsMode" checked />
-                        <span>Modo CORS <span class="label-muted">(desactiva si falla)</span></span>
-                    </label>
-                </div>
-
-                <div class="form-group">
-                    <label class="checkbox-group">
-                        <input type="checkbox" id="useAuth" onchange="toggleAuth()" />
-                        <span>Autorización básica (Basic Auth)</span>
-                    </label>
-                </div>
-
-                <div id="authFields" style="display:none;" class="auth-section form-group">
+                    <!-- URL + Method -->
                     <div class="form-group">
-                        <label for="authUser">Usuario</label>
-                        <input type="text" id="authUser" placeholder="usuario" />
+                        <label for="urlInput">URL</label>
+                        <input type="text" id="urlInput" placeholder="https://api.ejemplo.com/endpoint" />
                     </div>
-                    <div class="form-group" style="margin-bottom:0">
-                        <label for="authPass">Contraseña</label>
-                        <input type="password" id="authPass" placeholder="contraseña" />
+
+                    <div class="form-group">
+                        <label for="methodSelect">Método HTTP</label>
+                        <select id="methodSelect">
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PUT">PUT</option>
+                            <option value="DELETE">DELETE</option>
+                            <option value="PATCH">PATCH</option>
+                        </select>
                     </div>
-                </div>
 
-                <!-- Headers -->
-                <div class="section-label">Headers adicionales</div>
-                <div id="headersList"></div>
-                <button class="btn-outline btn-sm" onclick="addHeaderField()" style="margin-bottom:16px;">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-                    Agregar header
-                </button>
-
-                <!-- Execution times -->
-                <div class="section-label">Tiempos de ejecución</div>
-                <div class="form-group">
-                    <div class="input-row">
-                        <input type="number" id="timeInput" placeholder="Segundos (ej: 10)" min="1" />
-                        <button class="btn btn-sm" onclick="addTime()">Agregar</button>
+                    <!-- Options -->
+                    <div class="form-group">
+                        <label class="checkbox-group">
+                            <input type="checkbox" id="useCorsMode" checked />
+                            <span>Modo CORS <span class="label-muted">(desactiva si falla)</span></span>
+                        </label>
                     </div>
-                    <div class="times-container" id="timesList"></div>
+
+                    <div class="form-group">
+                        <label class="checkbox-group">
+                            <input type="checkbox" id="useAuth" onchange="toggleAuth()" />
+                            <span>Autorización básica (Basic Auth)</span>
+                        </label>
+                    </div>
+
+                    <div id="authFields" style="display:none;" class="auth-section form-group">
+                        <div class="form-group">
+                            <label for="authUser">Usuario</label>
+                            <input type="text" id="authUser" placeholder="usuario" />
+                        </div>
+                        <div class="form-group" style="margin-bottom:0">
+                            <label for="authPass">Contraseña</label>
+                            <input type="password" id="authPass" placeholder="contraseña" />
+                        </div>
+                    </div>
+
+                    <!-- Headers -->
+                    <div class="section-label">Headers adicionales</div>
+                    <div id="headersList"></div>
+                    <button class="btn-outline btn-sm" onclick="addHeaderField()" style="margin-bottom:16px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                        Agregar header
+                    </button>
+
+                    <!-- Execution schedule -->
+                    <div class="section-label">Programación</div>
+                    <div class="form-group">
+                        <label for="scheduleTypeSelect">Tipo de programación</label>
+                        <select id="scheduleTypeSelect" onchange="toggleScheduleType()">
+                            <option value="seconds">Segundos (repite cada minuto)</option>
+                            <option value="cron">Cron (personalizado)</option>
+                        </select>
+                    </div>
+
+                    <div id="secondsSchedule" class="form-group">
+                        <label for="timeInput">Tiempos de ejecución <span class="label-muted">(segundo del minuto)</span></label>
+                        <div class="input-row">
+                            <input type="number" id="timeInput" placeholder="Segundos (ej: 10)" min="1" />
+                            <button class="btn btn-sm" onclick="addTime()">Agregar</button>
+                        </div>
+                        <div class="times-container" id="timesList"></div>
+                    </div>
+
+                    <div id="cronSchedule" class="auth-section form-group" style="display:none;">
+                        <label for="cronPreset">Plantillas comunes</label>
+                        <select id="cronPreset" onchange="applyCronPreset(this.value)" style="margin-bottom:10px;">
+                            <option value="">Elegir plantilla...</option>
+                            <option value="*/5 * * * *">Cada 5 minutos</option>
+                            <option value="*/15 * * * *">Cada 15 minutos</option>
+                            <option value="0 * * * *">Cada hora</option>
+                            <option value="0 8 * * *">Todos los días a las 08:00</option>
+                            <option value="0 0 * * *">Todos los días a las 00:00</option>
+                            <option value="0 9 * * 1-5">Lunes a viernes a las 09:00</option>
+                            <option value="0 10 * * 0">Domingos a las 10:00</option>
+                        </select>
+                        <label for="cronInput">Expresión cron</label>
+                        <input type="text" id="cronInput" placeholder="* * * * *" style="font-family:'JetBrains Mono',monospace;" />
+                        <p class="label-muted" style="margin-top:6px;">Formato: minuto hora día-mes mes día-semana (0-6, 0=domingo). Ej: <code>0 9 * * 1-5</code> = lunes a viernes a las 9:00.</p>
+                    </div>
+
+                    <button class="btn btn-full" onclick="addUrl()" style="margin-top:4px;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                        Agregar URL
+                    </button>
+
                 </div>
-
-                <button class="btn btn-full" onclick="addUrl()" style="margin-top:4px;">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-                    Agregar URL
-                </button>
-
-                <!-- URL list -->
-                <div class="divider" style="margin: 20px 0 16px;"></div>
-                <div class="section-label" style="margin-top:0;">URLs configuradas</div>
-                <div class="url-list" id="urlList">
-                    <div class="empty-state">Ninguna URL configurada aún</div>
-                </div>
-
             </div>
 
-            <!-- Controls footer -->
-            <div class="controls">
-                <button class="btn-success btn btn-full" id="startBtn" onclick="startScheduler()">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                    Iniciar todo
-                </button>
-                <button class="btn-destructive btn btn-full" id="stopBtn" onclick="abortAll()" disabled>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-                    Abortar todo
-                </button>
+            <!-- ── URLs configuradas (siempre visible) ── -->
+            <div class="card" id="urlListCard">
+                <div class="card-header">
+                    <div class="card-title">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/></svg>
+                        URLs configuradas
+                    </div>
+                    <p class="card-description">Ejecuta una vez, activa el modo automático o elimínalas</p>
+                </div>
+
+                <div class="card-content">
+                    <div class="url-list" id="urlList">
+                        <div class="empty-state">Ninguna URL configurada aún</div>
+                    </div>
+                </div>
+
+                <!-- Controls footer -->
+                <div class="controls">
+                    <button class="btn-success btn btn-full" id="startBtn" onclick="startScheduler()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Iniciar todo
+                    </button>
+                    <button class="btn-destructive btn btn-full" id="stopBtn" onclick="abortAll()" disabled>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                        Abortar todo
+                    </button>
+                </div>
             </div>
+
         </div>
 
         <!-- ── Right panel: Logs ── -->
@@ -176,6 +220,38 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- ── Response detail modal ── -->
+    <div class="modal-overlay" id="logModalOverlay" style="display:none;" onclick="if (event.target === this) closeLogModal()">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="card-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    Detalle de la ejecución
+                </div>
+                <button class="btn-outline btn btn-icon btn-sm" onclick="closeLogModal()" title="Cerrar">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-meta-row">
+                    <span id="modalMethod" class="url-card-method method-GET">GET</span>
+                    <span id="modalUrl" class="modal-url"></span>
+                </div>
+                <div class="modal-meta-row">
+                    <span class="label-muted">Hora:</span> <span id="modalTimestamp"></span>
+                    <span class="label-muted" style="margin-left:14px;">Código:</span> <span id="modalStatusCode"></span>
+                    <span id="modalStatus" class="badge badge-secondary" style="margin-left:14px;"></span>
+                </div>
+
+                <div class="section-label" style="margin-top:18px;">Headers de respuesta</div>
+                <pre class="modal-pre" id="modalHeaders"></pre>
+
+                <div class="section-label">Contenido de la respuesta</div>
+                <pre class="modal-pre modal-pre-body" id="modalBody"></pre>
+            </div>
+        </div>
     </div>
 
     <script src="app.js"></script>

@@ -106,6 +106,12 @@ body {
     align-items: start;
 }
 
+.left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
 /* ─── Card ───────────────────────────────────────────────── */
 
 .card {
@@ -136,6 +142,34 @@ body {
     font-size: 13px;
     color: hsl(var(--muted-foreground));
     margin-top: 2px;
+}
+
+/* ─── Collapsible card header ────────────────────────────── */
+
+.collapsible-header {
+    cursor: pointer;
+    user-select: none;
+    border-radius: calc(var(--radius) + 4px) calc(var(--radius) + 4px) 0 0;
+    transition: background 0.15s;
+}
+
+.collapsible-header:hover {
+    background: hsl(var(--muted) / 0.5);
+}
+
+.collapsible-header.collapsed {
+    padding-bottom: 20px;
+    border-radius: calc(var(--radius) + 4px);
+}
+
+.chevron {
+    color: hsl(var(--muted-foreground));
+    flex-shrink: 0;
+    transition: transform 0.2s;
+}
+
+.chevron.collapsed {
+    transform: rotate(-90deg);
 }
 
 .card-content {
@@ -704,6 +738,95 @@ button:disabled {
     color: hsl(199 89% 70%);
     word-break: break-all;
     flex: 1;
+}
+
+.log-view-btn {
+    height: auto;
+    padding: 1px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 3px;
+    background: hsl(215 27.9% 16.9%);
+    color: hsl(210 40% 85%);
+    border: 1px solid hsl(215 27.9% 25%);
+}
+
+.log-view-btn:hover {
+    background: hsl(215 27.9% 22%);
+}
+
+/* ─── Response detail modal ─────────────────────────────── */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: hsl(222.2 84% 4.9% / 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 100;
+}
+
+.modal-box {
+    background: hsl(var(--card));
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border));
+    width: 100%;
+    max-width: 640px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 40px hsl(222.2 84% 4.9% / 0.35);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid hsl(var(--border));
+    flex-shrink: 0;
+}
+
+.modal-body {
+    padding: 18px 20px 20px;
+    overflow-y: auto;
+}
+
+.modal-meta-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.modal-url {
+    word-break: break-all;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+}
+
+.modal-pre {
+    background: hsl(222.2 84% 4.9%);
+    color: hsl(210 40% 90%);
+    border: 1px solid hsl(215 27.9% 16.9%);
+    border-radius: var(--radius);
+    padding: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 160px;
+    overflow-y: auto;
+    margin-bottom: 14px;
+}
+
+.modal-pre-body {
+    max-height: 320px;
 }
 
 /* ─── Log footer ─────────────────────────────────────────── */
